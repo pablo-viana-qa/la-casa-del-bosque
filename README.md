@@ -25,7 +25,22 @@ npm run build    # verifica tipos y genera el sitio estático en dist/
 npm run preview  # sirve la versión compilada
 ```
 
-Antes de publicar, cambiá `site` en `astro.config.mjs` por el dominio real: se usa para la URL canónica, las imágenes al compartir, los datos estructurados, el sitemap y robots.txt.
+## Publicar en Cloudflare Pages
+
+1. En Cloudflare: Workers & Pages → Create → Pages → Connect to Git, y elegí este repositorio.
+2. Configuración de compilación:
+   - Framework preset: Astro
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+3. Variables de entorno (Settings → Variables and secrets), para Production y Preview:
+   - `BOOKING_ICAL_URL`: el enlace `.ics` de Booking (marcalo como secreto).
+   - `NODE_VERSION`: `22` (por si el entorno no toma `.nvmrc`).
+   - `SITE_URL`: solo cuando haya dominio propio, ej. `https://lacasadelbosque.uy`. Sin ella se usa `https://la-casa-del-bosque.pages.dev`.
+4. Cada `git push` a `main` vuelve a publicar el sitio.
+
+`public/_headers` agrega los encabezados de seguridad (CSP, HSTS, anti-iframe) y la caché larga de los archivos de `/_astro`. Si el nombre `la-casa-del-bosque` ya estuviera tomado en Cloudflare y la dirección `.pages.dev` fuera otra, cargá esa dirección en `SITE_URL`.
+
+Después de publicar: dar de alta el sitio en Google Search Console y enviar `sitemap.xml`.
 
 ## Calendario de Booking.com
 
