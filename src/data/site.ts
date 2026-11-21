@@ -146,6 +146,32 @@ export const reviews = [
 ];
 
 /* ------------------------------------------------------------------ */
+/*  Precios (tomados de la Extranet de Booking.com, tarifa Standard)   */
+/*  Precio por noche para 8 personas, y US$20 menos por cada persona   */
+/*  menos. Revisado el 21/11/2026; si cambian en Booking, actualizar.  */
+/* ------------------------------------------------------------------ */
+
+export const pricing = {
+  currency: 'US$',
+  base: 200, // por noche, para la ocupación estándar
+  baseGuests: 8,
+  perGuest: 20, // descuento por cada persona menos
+  minGuests: 2,
+};
+
+/** Precio por noche según la cantidad de huéspedes (2 a 8). */
+export const nightlyPrice = (guests: number) => {
+  const g = Math.min(pricing.baseGuests, Math.max(pricing.minGuests, guests));
+  return pricing.base - (pricing.baseGuests - g) * pricing.perGuest;
+};
+
+export const priceTable = Array.from({ length: pricing.baseGuests - pricing.minGuests + 1 }, (_, i) => {
+  const guests = pricing.baseGuests - i;
+  const night = nightlyPrice(guests);
+  return { guests, night, perPerson: Math.round(night / guests) };
+});
+
+/* ------------------------------------------------------------------ */
 /*  Normas                                                             */
 /* ------------------------------------------------------------------ */
 

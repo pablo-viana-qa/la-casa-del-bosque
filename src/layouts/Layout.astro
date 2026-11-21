@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { site, houseGallery, amenityGroups } from '../data/site';
+import { site, houseGallery, amenityGroups, pricing, nightlyPrice } from '../data/site';
 import heroImg from '../assets/fotos/frente.jpg';
 import { getImage } from 'astro:assets';
 
@@ -49,6 +49,8 @@ const jsonLd = {
   numberOfRooms: 3,
   numberOfBathroomsTotal: 2,
   occupancy: { '@type': 'QuantitativeValue', maxValue: 8, unitText: 'huéspedes' },
+  priceRange: `${pricing.currency}${nightlyPrice(pricing.minGuests)} – ${pricing.currency}${pricing.base} por noche`,
+  currenciesAccepted: 'USD',
   checkinTime: '15:00',
   checkoutTime: '11:00',
   petsAllowed: true,
