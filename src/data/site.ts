@@ -77,10 +77,10 @@ export const amenityGroups: { title: string; items: { label: string; note?: stri
   {
     title: 'Espacios',
     items: [
+      { label: 'Casa de 210 m²', note: 'en dos plantas' },
       { label: 'Cuatro dormitorios', note: 'dos abajo, dos arriba' },
       { label: 'Dos baños', note: 'uno en cada planta' },
-      { label: 'Living amplio', note: 'con cocina definida' },
-      { label: 'Dos jardines', note: 'al frente y atrás' },
+      { label: 'Living amplio', note: 'con sofá y comedor' },
     ],
   },
   {
@@ -88,6 +88,7 @@ export const amenityGroups: { title: string; items: { label: string; note?: stri
     items: [
       { label: 'Estufa a leña', note: 'en el living' },
       { label: 'Aire acondicionado', note: 'en los dormitorios' },
+      { label: 'Calefacción' },
       { label: 'Ventiladores de techo' },
       { label: 'Camas y colchones muy cómodos', note: 'confort 9,1' },
     ],
@@ -95,8 +96,9 @@ export const amenityGroups: { title: string; items: { label: string; note?: stri
   {
     title: 'Cocina y hogar',
     items: [
-      { label: 'Cocina totalmente equipada' },
-      { label: 'Lavarropas' },
+      { label: 'Cocina equipada', note: 'horno y microondas' },
+      { label: 'Ropa de cama y toallas', note: 'incluidas' },
+      { label: 'Lavarropas', note: 'con tendedero y plancha' },
       { label: 'TV de pantalla plana' },
       { label: 'Wifi gratis', note: 'puntuado 10/10' },
     ],
@@ -104,7 +106,8 @@ export const amenityGroups: { title: string; items: { label: string; note?: stri
   {
     title: 'Afuera',
     items: [
-      { label: 'Balcón con vista al jardín' },
+      { label: 'Dos jardines', note: 'al frente y atrás' },
+      { label: 'Balcón y terraza', note: 'con vista al jardín' },
       { label: 'Estacionamiento privado gratis' },
       { label: 'Frente a una plaza con juegos' },
       { label: 'Mascotas bienvenidas', note: 'sin costo extra' },
