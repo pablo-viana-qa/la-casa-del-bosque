@@ -10,7 +10,7 @@ interface Props {
 }
 const {
   title = 'Casa de alquiler en Balneario Iporá, Tacuarembó | La Casa del Bosque',
-  description = 'Alquiler de casa en Balneario Iporá, Tacuarembó: 3 dormitorios, 2 baños, estufa a leña y jardín para hasta 8 personas, a pasos del lago. Mascotas sin cargo.',
+  description = 'Alquiler de casa en Balneario Iporá, Tacuarembó: 4 dormitorios, 2 baños, estufa a leña y jardín para hasta 8 personas, a pasos del lago. Mascotas sin cargo.',
 } = Astro.props;
 
 const base = Astro.site ?? Astro.url;
@@ -46,7 +46,7 @@ const jsonLd = {
     addressCountry: 'UY',
   },
   containedInPlace: { '@type': 'Place', name: 'Balneario Iporá, Tacuarembó, Uruguay' },
-  numberOfRooms: 3,
+  numberOfRooms: 4,
   numberOfBathroomsTotal: 2,
   occupancy: { '@type': 'QuantitativeValue', maxValue: 8, unitText: 'huéspedes' },
   priceRange: `${pricing.currency}${nightlyPrice(pricing.minGuests)} – ${pricing.currency}${pricing.base} por noche`,

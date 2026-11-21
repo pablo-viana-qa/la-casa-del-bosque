@@ -77,7 +77,7 @@ export const amenityGroups: { title: string; items: { label: string; note?: stri
   {
     title: 'Espacios',
     items: [
-      { label: 'Tres dormitorios', note: 'dos abajo, uno arriba' },
+      { label: 'Cuatro dormitorios', note: 'dos abajo, dos arriba' },
       { label: 'Dos baños', note: 'uno en cada planta' },
       { label: 'Living amplio', note: 'con cocina definida' },
       { label: 'Dos jardines', note: 'al frente y atrás' },
