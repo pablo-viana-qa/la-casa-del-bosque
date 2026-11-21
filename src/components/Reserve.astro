@@ -1,5 +1,6 @@
 ---
 import { site, rules, waLink } from '../data/site';
+import Availability from './Availability.astro';
 
 const field =
   'mt-2 block w-full min-h-12 rounded-[2px] border border-cream/25 bg-cream/[0.06] px-4 py-3 text-cream placeholder:text-cream/45 transition-colors hover:border-cream/45 focus:border-clay focus:bg-cream/10 focus:outline-none [color-scheme:dark]';
@@ -29,6 +30,7 @@ const label = 'text-sm font-medium text-cream/85';
     </div>
 
     <div class="lg:col-span-6 lg:col-start-7">
+      <Availability />
       <form id="reserve-form" class="grid grid-cols-2 gap-x-4 gap-y-5 border-t border-cream/20 pt-6" novalidate>
         <label class="col-span-2 block min-[420px]:col-span-1">
           <span class={label}>Llegada</span>
@@ -150,6 +152,8 @@ const label = 'text-sm font-medium text-cream/85';
 
     if (!inDate.value || !outDate.value) return fail('Elegí las fechas de llegada y salida.', inDate.value ? outDate : inDate);
     if (countNights() < 1) return fail('La salida tiene que ser al menos un día después de la llegada.', outDate);
+    if (window.casaRangeBusy?.(inDate.value, outDate.value))
+      return fail('Algunas de esas noches ya están reservadas en Booking. Revisá el calendario y elegí otras fechas.', inDate);
     if (adultos + ninos > 8) return fail(`La casa admite hasta 8 huéspedes; seleccionaste ${adultos + ninos}.`, form.elements.namedItem('ninos'));
     if (!nombre) return fail('Contanos tu nombre para que sepamos a quién responder.', form.elements.namedItem('nombre'));
 

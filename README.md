@@ -10,6 +10,7 @@ Una sola página construida con [Astro](https://astro.build) y Tailwind CSS, cen
 - Carrusel del entorno a pantalla completa y sección de ubicación con mapa de Google y botón "Cómo llegar".
 - Opiniones de huéspedes.
 - Formulario de consulta que arma el mensaje y abre WhatsApp con las fechas, huéspedes y mascotas.
+- Calendario de disponibilidad sincronizado con Booking.com: muestra las noches ocupadas, permite elegir llegada y salida y no deja enviar fechas ya reservadas.
 - Header fijo que se adapta al bajar, menú móvil propio y barra de reserva en el teléfono.
 - SEO: título y descripción orientados a búsquedas de alquiler, datos estructurados `VacationRental`, Open Graph, `sitemap.xml` y `robots.txt`.
 
@@ -25,6 +26,14 @@ npm run preview  # sirve la versión compilada
 ```
 
 Antes de publicar, cambiá `site` en `astro.config.mjs` por el dominio real: se usa para la URL canónica, las imágenes al compartir, los datos estructurados, el sitemap y robots.txt.
+
+## Calendario de Booking.com
+
+1. En la Extranet de Booking: Tarifas y disponibilidad → Sincronizar calendarios → Exportar calendario, y copiá el enlace `.ics`.
+2. Local: copiá `.env.example` como `.env` y pegá el enlace en `BOOKING_ICAL_URL`.
+3. Publicado en Cloudflare Pages: cargá la misma variable en Settings → Environment variables. La función `functions/api/disponibilidad.ts` lee el calendario en el servidor (el enlace no queda visible) y lo guarda 15 minutos en caché.
+
+Sin el enlace, el calendario no se muestra y el formulario funciona igual. Las reservas que entren por WhatsApp hay que bloquearlas a mano en Booking para que no se superpongan.
 
 ## Estructura
 

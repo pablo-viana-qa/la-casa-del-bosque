@@ -1,0 +1,237 @@
+---
+/**
+ * Calendario de disponibilidad sincronizado con Booking.com.
+ * - Al compilar se lee el calendario (BOOKING_ICAL_URL) y queda dentro de la página.
+ * - En el navegador se pide /api/disponibilidad (Cloudflare Pages Function) para tener
+ *   los datos al día; si no existe, se usa lo que quedó al compilar.
+ * - Si no hay calendario configurado, la sección no se muestra y el formulario sigue igual.
+ */
+import { fetchAvailability } from '../lib/ical';
+
+const initial = await fetchAvailability(
+  import.meta.env.BOOKING_ICAL_URL ?? (globalThis as any).process?.env?.BOOKING_ICAL_URL,
+);
+---
+
+<section id="disponibilidad" class="mb-8 hidden" aria-labelledby="disp-title" data-initial={initial ? JSON.stringify(initial) : ''}>
+  <div class="flex items-end justify-between gap-4 border-t border-cream/20 pt-6">
+    <div>
+      <h3 id="disp-title" class="font-sans text-[0.9375rem] font-semibold">Disponibilidad</h3>
+      <p class="mt-1 text-sm text-cream/65">Elegí llegada y salida en el calendario.</p>
+    </div>
+    <div class="flex gap-1">
+      <button type="button" data-cal-prev class="grid size-11 place-items-center rounded-full transition-colors hover:bg-cream/10 disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Mes anterior">
+        <span aria-hidden="true">←</span>
+      </button>
+      <button type="button" data-cal-next class="grid size-11 place-items-center rounded-full transition-colors hover:bg-cream/10 disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Mes siguiente">
+        <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+
+  <div data-cal-months class="mt-4 grid gap-6 sm:grid-cols-2"></div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.8125rem] text-cream/70">
+    <span class="flex items-center gap-2"><span class="size-3 rounded-[2px] border border-cream/40"></span>Libre</span>
+    <span class="flex items-center gap-2"><span class="size-3 rounded-[2px] bg-cream/15"></span>Ocupado</span>
+    <span class="flex items-center gap-2"><span class="size-3 rounded-[2px] bg-clay"></span>Tus fechas</span>
+    <span data-cal-updated class="ml-auto text-cream/55"></span>
+  </div>
+  <p data-cal-hint class="mt-3 hidden text-sm text-[#f4cdb8]" role="status"></p>
+</section>
+
+<style is:global>
+  .cal-day {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    max-height: 2.75rem;
+    border-radius: 2px;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.9375rem;
+    transition: background-color 0.2s var(--ease-out-soft), color 0.2s var(--ease-out-soft);
+  }
+  .cal-day:not(:disabled):hover { background: color-mix(in oklab, var(--color-cream) 12%, transparent); }
+  .cal-day:disabled { color: color-mix(in oklab, var(--color-cream) 28%, transparent); cursor: default; }
+  .cal-day[data-busy] {
+    background: color-mix(in oklab, var(--color-cream) 9%, transparent);
+    color: color-mix(in oklab, var(--color-cream) 40%, transparent);
+    text-decoration: line-through;
+  }
+  .cal-day[data-range] { background: color-mix(in oklab, var(--color-clay) 24%, transparent); color: var(--color-cream); text-decoration: none; }
+  .cal-day[data-edge] { background: var(--color-clay); color: var(--color-ink); font-weight: 600; text-decoration: none; }
+  .cal-day[data-today]::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+</style>
+
+<script>
+  type Availability = { busy: string[]; updated: string };
+
+  const root = document.getElementById('disponibilidad');
+  const form = document.getElementById('reserve-form') as HTMLFormElement | null;
+
+  if (root && form) {
+    const inDate = form.elements.namedItem('llegada') as HTMLInputElement;
+    const outDate = form.elements.namedItem('salida') as HTMLInputElement;
+    const monthsEl = root.querySelector<HTMLElement>('[data-cal-months]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-cal-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-cal-next]')!;
+    const updatedEl = root.querySelector<HTMLElement>('[data-cal-updated]')!;
+    const hint = root.querySelector<HTMLElement>('[data-cal-hint]')!;
+
+    const DAY = 86_400_000;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const key = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
+    const addDays = (iso: string, n: number) => new Date(Date.parse(iso + 'T00:00:00Z') + n * DAY).toISOString().slice(0, 10);
+    const now = new Date();
+    const today = key(now.getFullYear(), now.getMonth(), now.getDate());
+    const lastMonth = 17; // meses hacia adelante
+
+    let busy = new Set<string>();
+    let offset = 0; // meses desde el actual
+    const perView = () => (window.matchMedia('(min-width: 640px)').matches ? 2 : 1);
+
+    const nightsBusy = (from: string, to: string) => {
+      for (let d = from; d < to; d = addDays(d, 1)) if (busy.has(d)) return true;
+      return false;
+    };
+    // el formulario consulta esto antes de abrir WhatsApp
+    (window as any).casaRangeBusy = (from: string, to: string) => busy.size > 0 && nightsBusy(from, to);
+
+    const say = (msg: string) => {
+      hint.textContent = msg;
+      hint.classList.toggle('hidden', !msg);
+    };
+
+    const longDate = (iso: string) =>
+      new Date(iso + 'T12:00:00').toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    const render = () => {
+      const start = inDate.value;
+      const end = outDate.value;
+      const views = perView();
+      monthsEl.innerHTML = '';
+      for (let v = 0; v < views; v++) {
+        const base = new Date(now.getFullYear(), now.getMonth() + offset + v, 1);
+        const y = base.getFullYear();
+        const m = base.getMonth();
+        const days = new Date(y, m + 1, 0).getDate();
+        const lead = (base.getDay() + 6) % 7; // lunes primero
+
+        const box = document.createElement('div');
+        const title = base.toLocaleDateString('es-UY', { month: 'long', year: 'numeric' });
+        box.innerHTML = `<p class="mb-2 text-center text-sm font-semibold first-letter:uppercase">${title}</p>
+          <div class="grid grid-cols-7 gap-1 text-center text-xs text-cream/55" aria-hidden="true">
+            ${['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d) => `<span class="py-1">${d}</span>`).join('')}
+          </div>`;
+        const grid = document.createElement('div');
+        grid.className = 'mt-1 grid grid-cols-7 gap-1';
+        grid.setAttribute('role', 'group');
+        grid.setAttribute('aria-label', title);
+        for (let i = 0; i < lead; i++) grid.appendChild(document.createElement('span'));
+
+        for (let d = 1; d <= days; d++) {
+          const iso = key(y, m, d);
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'cal-day';
+          b.textContent = String(d);
+          b.dataset.day = iso;
+          const isBusy = busy.has(iso);
+          const past = iso < today;
+          if (past) b.disabled = true;
+          if (isBusy) b.dataset.busy = '';
+          if (iso === today) b.dataset.today = '';
+          if (iso === start || iso === end) b.dataset.edge = '';
+          else if (start && end && iso > start && iso < end) b.dataset.range = '';
+          b.setAttribute('aria-pressed', String(iso === start || iso === end));
+          b.setAttribute('aria-label', `${longDate(iso)}${isBusy ? ', ocupado' : past ? '' : ', libre'}`);
+          grid.appendChild(b);
+        }
+        box.appendChild(grid);
+        monthsEl.appendChild(box);
+      }
+      prev.disabled = offset <= 0;
+      next.disabled = offset + views - 1 >= lastMonth;
+    };
+
+    const setDates = (a: string, b: string) => {
+      inDate.value = a;
+      outDate.value = b;
+      inDate.dispatchEvent(new Event('change'));
+      outDate.dispatchEvent(new Event('change'));
+    };
+
+    monthsEl.addEventListener('click', (e) => {
+      const b = (e.target as Element).closest<HTMLButtonElement>('.cal-day');
+      if (!b || b.disabled) return;
+      const d = b.dataset.day!;
+      const start = inDate.value;
+      const choosingEnd = start && !outDate.value && d > start;
+
+      if (choosingEnd) {
+        if (nightsBusy(start, d)) {
+          say('Hay noches ocupadas entre esas fechas. Elegí una salida anterior u otra llegada.');
+          return;
+        }
+        say('');
+        setDates(start, d);
+      } else {
+        if (busy.has(d)) {
+          say('Esa noche ya está reservada. Elegí otro día de llegada.');
+          return;
+        }
+        say('Ahora elegí el día de salida.');
+        setDates(d, '');
+      }
+      render();
+      root.querySelector<HTMLButtonElement>(`[data-day="${d}"]`)?.focus();
+    });
+
+    // si cambian las fechas a mano, el calendario las refleja
+    [inDate, outDate].forEach((el) => {
+      el.addEventListener('input', () => say(''));
+      el.addEventListener('change', () => queueMicrotask(render));
+    });
+
+    prev.addEventListener('click', () => {
+      offset = Math.max(0, offset - 1);
+      render();
+    });
+    next.addEventListener('click', () => {
+      offset = Math.min(lastMonth, offset + 1);
+      render();
+    });
+    window.matchMedia('(min-width: 640px)').addEventListener('change', render);
+
+    const apply = (data: Availability) => {
+      busy = new Set(data.busy);
+      const mins = Math.round((Date.now() - Date.parse(data.updated)) / 60000);
+      const ago =
+        mins < 2 ? 'recién' : mins < 60 ? `hace ${mins} min` : mins < 1440 ? `hace ${Math.round(mins / 60)} h` : `hace ${Math.round(mins / 1440)} días`;
+      updatedEl.textContent = `Sincronizado con Booking.com · ${ago}`;
+      root.classList.remove('hidden');
+      render();
+    };
+
+    const raw = root.dataset.initial;
+    if (raw) {
+      try {
+        apply(JSON.parse(raw));
+      } catch {}
+    }
+    fetch('/api/disponibilidad', { headers: { accept: 'application/json' } })
+      .then((r) => (r.ok && r.headers.get('content-type')?.includes('json') ? r.json() : null))
+      .then((data) => data && Array.isArray(data.busy) && apply(data))
+      .catch(() => {});
+  }
+</script>

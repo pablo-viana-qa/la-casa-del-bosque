@@ -11,5 +11,6 @@ Photos/
 .taste-skill/
 .env
 .env.*
+!.env.example
 .DS_Store
 Thumbs.db
