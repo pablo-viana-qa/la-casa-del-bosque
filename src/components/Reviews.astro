@@ -1,0 +1,49 @@
+---
+import { site, scores, reviews } from '../data/site';
+
+const fmt = (n: number) => n.toLocaleString('es-UY', { minimumFractionDigits: 1 });
+const [lead, ...rest] = reviews;
+---
+
+<!-- Momento 2: la puntuación de los huéspedes, en tipografía grande -->
+<section id="opiniones" class="border-t border-ink/10 py-14 md:py-20" aria-labelledby="opiniones-title">
+  <div class="wrap grid gap-10 lg:grid-cols-12 lg:gap-10">
+    <div class="lg:col-span-5">
+      <h2 id="opiniones-title" class="h-section">Lo que dicen los huéspedes</h2>
+      <p class="mt-8 flex items-end gap-5 md:mt-10">
+        <span class="font-serif text-[clamp(6.5rem,13vw,11rem)] font-[300] leading-[0.85] tracking-[-0.04em] text-brick">{site.rating.score}</span>
+        <span class="pb-1 leading-tight">
+          <span class="block font-serif text-2xl">{site.rating.label}</span>
+          <span class="text-ink-3">{site.rating.count} opiniones en Booking.com</span>
+        </span>
+      </p>
+
+      <dl class="mt-8 grid max-w-[30rem] grid-cols-2 gap-x-8 border-t border-ink/15">
+        {scores.map((s) => (
+          <div class="flex items-baseline justify-between border-b border-ink/15 py-3">
+            <dt class="text-ink-2">{s.label}</dt>
+            <dd class="font-serif text-lg tabular-nums">{fmt(s.value)}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <div class="lg:col-span-7 lg:self-center">
+      <figure class="border-t border-ink/15 pt-8">
+        <blockquote class="font-serif text-[clamp(1.55rem,2.6vw,2.25rem)] leading-[1.2]">“{lead.text}”</blockquote>
+        <figcaption class="mt-5 text-ink-3">{lead.name}, Uruguay</figcaption>
+      </figure>
+      <div class="mt-6 grid gap-x-10 sm:grid-cols-2">
+        {rest.map((r) => (
+          <figure class="border-t border-ink/15 py-5">
+            <blockquote class="text-[1.02rem] leading-relaxed text-ink-2">“{r.text}”</blockquote>
+            <figcaption class="mt-3 text-sm text-ink-3">{r.name}, Uruguay</figcaption>
+          </figure>
+        ))}
+      </div>
+      <a href={site.booking} target="_blank" rel="noopener" class="link-line mt-2 inline-flex min-h-11 items-center text-ink">
+        Leer las {site.rating.count} opiniones en Booking.com ↗
+      </a>
+    </div>
+  </div>
+</section>

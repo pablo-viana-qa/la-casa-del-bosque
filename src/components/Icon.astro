@@ -1,0 +1,54 @@
+---
+interface Props {
+  name: string;
+  class?: string;
+  size?: number;
+}
+const { name, class: cls = '', size = 22 } = Astro.props;
+
+const paths: Record<string, string> = {
+  wifi: '<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.5 12.3a9.5 9.5 0 0 1 13 0"/><path d="M8.6 15.6a5 5 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/>',
+  car: '<path d="M5 16.5V11l1.8-4.4A2 2 0 0 1 8.7 5.3h6.6a2 2 0 0 1 1.9 1.3L19 11v5.5"/><path d="M3.5 11h17v5.5h-17z"/><path d="M6 16.5V19M18 16.5V19"/><circle cx="7.5" cy="13.7" r=".9" fill="currentColor" stroke="none"/><circle cx="16.5" cy="13.7" r=".9" fill="currentColor" stroke="none"/>',
+  flame: '<path d="M12 21c-3.6 0-6-2.4-6-5.6 0-3.4 2.6-5.3 3.6-8.4.4 1.6 1.4 2.6 2.4 3.1C12 7.3 13.2 4.6 15.4 3c-.2 2.9 2.6 5.8 2.6 9.8C18 17.8 15.6 21 12 21Z"/><path d="M12 21c-1.5 0-2.6-1-2.6-2.5 0-1.6 1.4-2.4 2.1-3.9.9 1.2 3.1 2 3.1 3.9 0 1.5-1.1 2.5-2.6 2.5Z"/>',
+  snow: '<path d="M12 2.5v19M3.8 7.25l16.4 9.5M3.8 16.75l16.4-9.5"/><path d="m9.5 4 2.5 2 2.5-2M9.5 20l2.5-2 2.5 2M4.2 10.7l3.1-.6-1.1-2.9M19.8 13.3l-3.1.6 1.1 2.9M6.2 16.8l1.1-2.9-3.1-.6M17.8 7.2l-1.1 2.9 3.1.6"/>',
+  fan: '<circle cx="12" cy="12" r="1.6"/><path d="M12 10.4c0-3.4.8-6.4 3-6.4 1.8 0 2.2 2.3.6 3.8-1 .9-2.4 1.8-3.6 2.6Z"/><path d="M13.4 12.8c2.9 1.7 5.1 3.9 4 5.8-.9 1.6-3.1.8-3.6-1.3-.3-1.3-.4-3-.4-4.5Z"/><path d="M10.6 12.8c-2.9 1.7-6 2.5-7.1.6-.9-1.6.9-3.1 3-2.5 1.3.4 2.8 1.2 4.1 1.9Z"/>',
+  bed: '<path d="M3 18.5V6M3 14h18v4.5M21 14v-2.5a2.5 2.5 0 0 0-2.5-2.5H11v5"/><circle cx="7" cy="11" r="1.8"/>',
+  kitchen: '<path d="M7 3v7a2 2 0 0 0 2 2v9M11 3v7a2 2 0 0 1-2 2M9 3v6"/><path d="M17 21V3c-2 1.2-3 3.6-3 7v3h3"/>',
+  washer: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 7.5h16"/><circle cx="12" cy="14" r="4"/><path d="M9.6 14.6c1-.9 1.9.4 2.9-.4s1.6.2 1.9.1"/><circle cx="7" cy="5.3" r=".7" fill="currentColor" stroke="none"/>',
+  tv: '<rect x="2.5" y="4.5" width="19" height="12.5" rx="1.5"/><path d="M8.5 20.5h7M12 17v3.5"/>',
+  tree: '<path d="M12 21v-5"/><path d="M12 3 6 11h3l-4 5h14l-4-5h3Z"/>',
+  balcony: '<path d="M6 13V5a6 6 0 0 1 12 0v8"/><path d="M12 2v11"/><path d="M3 13h18M4 13v8M20 13v8M8 13v8M12 13v8M16 13v8M3 21h18"/>',
+  paw: '<ellipse cx="7.3" cy="9" rx="1.7" ry="2.2"/><ellipse cx="11" cy="5.8" rx="1.7" ry="2.2"/><ellipse cx="15.3" cy="6.6" rx="1.7" ry="2.2"/><ellipse cx="18.2" cy="10.6" rx="1.6" ry="2"/><path d="M8.2 18.3c0-2.8 2.3-6.1 4.6-6.1s4.4 3 4.4 5.6c0 2-1.4 2.7-2.7 2.2-1.1-.4-2.1-.4-3.2 0-1.5.6-3.1 0-3.1-1.7Z"/>',
+  bath: '<path d="M3 12h18v2.5a5.5 5.5 0 0 1-5.5 5.5h-7A5.5 5.5 0 0 1 3 14.5Z"/><path d="M5.5 12V5.5A2.5 2.5 0 0 1 10 4.2M7 20l-1 1.5M17 20l1 1.5"/><path d="M9 6.5l2.5-1.5"/>',
+  swing: '<path d="M3 4h18M5 4l-2 17M19 4l2 17M9 4v10M15 4v10M8 14h8"/>',
+  home: '<path d="M3.5 11 12 3.5l8.5 7.5"/><path d="M5.5 9.5V20.5h13V9.5"/><path d="M10 20.5v-6h4v6"/>',
+  leaf: '<path d="M5 19c0-8.5 5.5-14 15-14 0 9.5-5.5 15-14 15"/><path d="M5 19c3-4 6-6.5 10-8.5"/>',
+  whatsapp: '<path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z"/><path d="M8.6 8.2c.2-.5.5-.6.8-.6h.6c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .5-.1.7l-.6.7c-.1.2-.2.4 0 .6a7 7 0 0 0 3.3 2.9c.2.1.4 0 .6-.1l.8-.9c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.3.4.5 0 .9-.6 1.8-1.6 2.1-1 .3-2.1.1-4.4-1a10.2 10.2 0 0 1-4-3.9c-.8-1.4-.6-2.7.3-3.2Z" fill="currentColor" stroke="none"/>',
+  pin: '<path d="M12 21s-6.5-6.2-6.5-11.5a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.3"/>',
+  arrow: '<path d="M4 12h15M13 6l6 6-6 6"/>',
+  arrowUpRight: '<path d="M7 17 17 7M8 7h9v9"/>',
+  close: '<path d="M5 5l14 14M19 5 5 19"/>',
+  left: '<path d="M15 5l-7 7 7 7"/>',
+  right: '<path d="M9 5l7 7-7 7"/>',
+  menu: '<path d="M3.5 8h17M3.5 16h17"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',
+  star: '<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8Z"/>',
+  grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/>',
+};
+const body = paths[name] ?? '';
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  class={cls}
+  set:html={body}
+/>

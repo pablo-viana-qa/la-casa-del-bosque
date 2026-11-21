@@ -1,0 +1,172 @@
+---
+import Icon from './Icon.astro';
+import WhatsAppIcon from './WhatsAppIcon.astro';
+import { site, waLink } from '../data/site';
+
+const nav = [
+  { href: '#casa', label: 'La casa' },
+  { href: '#ubicacion', label: 'Ubicación' },
+  { href: '#opiniones', label: 'Opiniones' },
+];
+const wa = waLink('Hola, quisiera consultar por La Casa del Bosque.');
+---
+
+<!--
+  Header fijo. Sobre la foto: transparente, texto claro y una franja suave arriba (en Hero).
+  Al bajar: papel translúcido, texto oscuro, 64 px de alto.
+-->
+<header id="top-bar" class="group/bar fixed inset-x-0 top-0 z-50 text-cream transition-[background-color,color,box-shadow] duration-300 ease-[var(--ease-out-soft)] data-[scrolled]:bg-paper/90 data-[scrolled]:text-ink data-[scrolled]:shadow-[0_1px_0_rgb(25_32_28/0.08)] data-[scrolled]:backdrop-blur-md">
+  <div class="wrap flex h-16 items-center gap-4 transition-[height] duration-300 ease-[var(--ease-out-soft)] lg:h-20 lg:group-data-[scrolled]/bar:h-16">
+    <!-- Marca -->
+    <a href="#top" class="mr-auto flex min-h-11 flex-col justify-center leading-none [text-shadow:0_1px_12px_rgb(14_20_16/0.35)] group-data-[scrolled]/bar:[text-shadow:none]" aria-label="La Casa del Bosque, ir al inicio">
+      <span class="font-serif text-[1.35rem] font-[560] tracking-[-0.015em] md:text-[1.5rem]">La Casa del Bosque</span>
+      <span class="mt-1 font-sans text-[0.625rem] font-semibold uppercase tracking-[0.22em] opacity-80">Balneario Iporá · Uruguay</span>
+    </a>
+
+    <!-- Navegación -->
+    <nav aria-label="Principal" class="hidden lg:block">
+      <ul class="flex items-center gap-1">
+        {nav.map((n) => (
+          <li>
+            <a
+              href={n.href}
+              data-nav
+              class="relative inline-flex min-h-11 items-center px-3.5 text-[0.9375rem] font-semibold tracking-[0.005em] opacity-90 transition-opacity [text-shadow:0_1px_10px_rgb(14_20_16/0.35)] after:absolute after:inset-x-3.5 after:bottom-2 after:h-[2px] after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-[var(--ease-out-soft)] hover:opacity-100 hover:after:scale-x-100 aria-[current=true]:opacity-100 aria-[current=true]:after:scale-x-100 group-data-[scrolled]/bar:[text-shadow:none]"
+            >
+              {n.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <!-- Acciones -->
+    <div class="flex items-center gap-2 lg:ml-6 lg:gap-3">
+      <a
+        href={wa}
+        target="_blank"
+        rel="noopener"
+        class="grid size-11 place-items-center rounded-full bg-[#25D366] text-white opacity-75 shadow-[0_6px_16px_-8px_rgb(0_0_0/0.45)] transition-[opacity,transform] duration-200 hover:-translate-y-px hover:opacity-100 focus-visible:opacity-100 active:translate-y-px"
+        aria-label="Escribir por WhatsApp a La Casa del Bosque (se abre en una pestaña nueva)"
+        title="WhatsApp"
+      >
+        <WhatsAppIcon size={22} />
+      </a>
+      <a href="#reservar" class="btn btn-solid hidden !min-h-11 !px-5 !py-2 text-[0.9375rem] opacity-75 transition-[opacity,transform,box-shadow,background-color] hover:opacity-100 focus-visible:opacity-100 sm:inline-flex">
+        Consultar disponibilidad
+      </a>
+      <button
+        id="menu-btn"
+        type="button"
+        class="-mr-2 grid size-11 place-items-center rounded-full transition-colors hover:bg-current/10 lg:hidden"
+        aria-expanded="false"
+        aria-controls="menu-panel"
+        aria-label="Abrir menú"
+      >
+        <Icon name="menu" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Menú del teléfono y la tableta -->
+<div
+  id="menu-panel"
+  class="on-dark fixed inset-0 z-[60] flex flex-col bg-pine text-cream opacity-0 invisible transition-[opacity,visibility] duration-300 data-[open]:visible data-[open]:opacity-100 lg:hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Menú"
+>
+  <div class="wrap flex h-16 shrink-0 items-center justify-between">
+    <a href="#top" data-close class="flex min-h-11 flex-col justify-center leading-none">
+      <span class="font-serif text-[1.35rem] font-[560] tracking-[-0.015em]">La Casa del Bosque</span>
+      <span class="mt-1 text-[0.625rem] font-semibold uppercase tracking-[0.22em] text-cream/70">Balneario Iporá · Uruguay</span>
+    </a>
+    <button id="menu-close" type="button" class="-mr-2 grid size-11 place-items-center rounded-full transition-colors hover:bg-cream/10" aria-label="Cerrar menú">
+      <Icon name="close" />
+    </button>
+  </div>
+
+  <nav aria-label="Menú móvil" class="wrap mt-6 flex-1 overflow-y-auto">
+    <ul class="border-t border-cream/15">
+      {nav.map((n, i) => (
+        <li class="menu-item border-b border-cream/15" style={`--d:${80 + i * 50}ms`}>
+          <a href={n.href} data-close class="group flex min-h-16 items-center justify-between py-3 text-[1.75rem] font-semibold tracking-[-0.01em]">
+            {n.label}
+            <span class="text-xl text-cream/50 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-cream" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <p class="menu-item mt-8 flex items-center gap-3 text-sm text-cream/75" style="--d:240ms">
+      <span class="grid h-8 min-w-9 place-items-center rounded-[2px] bg-cream px-1.5 font-serif text-[1.05rem] font-medium text-ink">{site.rating.score}</span>
+      <span><span class="font-semibold text-cream">{site.rating.label}</span> · {site.rating.count} opiniones en Booking.com</span>
+    </p>
+  </nav>
+
+  <div class="wrap grid shrink-0 gap-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
+    <a href="#reservar" data-close class="btn btn-solid w-full !min-h-14 text-[1.0625rem]">Consultar disponibilidad</a>
+    <a href={wa} target="_blank" rel="noopener" class="btn w-full !min-h-14 border border-cream/30 text-[1.0625rem] hover:border-cream/60 hover:bg-cream/5">
+      <WhatsAppIcon size={20} class="text-[#25D366]" /> Escribir por WhatsApp
+    </a>
+  </div>
+</div>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    #menu-panel .menu-item { opacity: 0; transform: translateY(8px); transition: opacity 0.4s var(--ease-out-soft), transform 0.4s var(--ease-out-soft); transition-delay: var(--d, 0ms); }
+    #menu-panel[data-open] .menu-item { opacity: 1; transform: none; }
+  }
+</style>
+
+<script>
+  const bar = document.getElementById('top-bar')!;
+  const onScroll = () => bar.toggleAttribute('data-scrolled', window.scrollY > 40);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Marca la sección en pantalla en la navegación
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-nav]'));
+  const targets = links.map((a) => document.querySelector(a.hash)).filter(Boolean) as HTMLElement[];
+  if ('IntersectionObserver' in window && targets.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          links.forEach((a) => a.setAttribute('aria-current', String(a.hash === `#${e.target.id}`)));
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    targets.forEach((t) => io.observe(t));
+    // fuera de esas secciones (portada, entorno, reserva) no se marca nada
+    const clear = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && links.forEach((a) => a.setAttribute('aria-current', 'false'))),
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    ['top', 'ipora', 'reservar'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) clear.observe(el);
+    });
+  }
+
+  // Menú
+  const btn = document.getElementById('menu-btn')!;
+  const panel = document.getElementById('menu-panel')!;
+  const closeBtn = document.getElementById('menu-close')!;
+  const setOpen = (open: boolean) => {
+    panel.toggleAttribute('data-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    (open ? closeBtn : btn).focus();
+  };
+  btn.addEventListener('click', () => setOpen(true));
+  closeBtn.addEventListener('click', () => setOpen(false));
+  panel.querySelectorAll('[data-close]').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && panel.hasAttribute('data-open')) setOpen(false);
+  });
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (m) => m.matches && setOpen(false));
+</script>

@@ -1,0 +1,40 @@
+---
+import { site, distances, maps } from '../data/site';
+---
+
+<section id="ubicacion" class="py-14 md:py-20" aria-labelledby="ubicacion-title">
+  <div class="wrap grid gap-8 lg:grid-cols-12 lg:gap-10">
+    <div class="lg:col-span-4">
+      <h2 id="ubicacion-title" class="h-section">Ubicación</h2>
+      <p class="mt-5 text-[1.0625rem] leading-relaxed text-ink-2">
+        {site.address}, a 7&nbsp;km del centro de Tacuarembó, Uruguay.
+      </p>
+
+      <dl class="mt-8 border-t border-ink/15">
+        {distances.map((d) => (
+          <div class="flex items-baseline justify-between gap-6 border-b border-ink/15 py-3">
+            <dt class="text-ink-2">{d.place}</dt>
+            <dd class="shrink-0 font-semibold tabular-nums">{d.dist}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <a href={maps.directions} target="_blank" rel="noopener" class="btn mt-8 w-full bg-pine text-cream hover:bg-pine-2 sm:w-auto">
+        Cómo llegar <span class="arr" aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <div class="lg:col-span-8">
+      <div class="relative aspect-[4/3] overflow-hidden border border-ink/10 bg-paper-2 sm:aspect-[16/10] lg:aspect-auto lg:h-full lg:min-h-[30rem]">
+        <iframe
+          src={maps.embed}
+          title="Mapa de Google con la ubicación de La Casa del Bosque en Balneario Iporá, Tacuarembó"
+          class="absolute inset-0 size-full"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</section>

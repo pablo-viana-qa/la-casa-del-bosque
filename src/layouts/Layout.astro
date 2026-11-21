@@ -1,0 +1,109 @@
+---
+import '../styles/global.css';
+import { site, houseGallery, amenityGroups } from '../data/site';
+import heroImg from '../assets/fotos/frente.jpg';
+import { getImage } from 'astro:assets';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = 'Casa de alquiler en Balneario Iporá, Tacuarembó | La Casa del Bosque',
+  description = 'Alquiler de casa en Balneario Iporá, Tacuarembó: 3 dormitorios, 2 baños, estufa a leña y jardín para hasta 8 personas, a pasos del lago. Mascotas sin cargo.',
+} = Astro.props;
+
+const base = Astro.site ?? Astro.url;
+const abs = (path: string) => new URL(path, base).href;
+const canonical = abs(Astro.url.pathname);
+
+const og = await getImage({ src: heroImg, width: 1200, format: 'jpg' });
+const ogUrl = abs(og.src);
+const ogAlt = 'Frente de La Casa del Bosque, casa de ladrillo con jardín en Balneario Iporá';
+
+// Varias fotos para los buscadores
+const gallery = await Promise.all(
+  [heroImg, ...houseGallery.slice(0, 5).map((p) => p.src)].map(async (src) => abs((await getImage({ src, width: 1200, format: 'jpg' })).src)),
+);
+
+/* Datos estructurados (schema.org). La dirección completa va solo aquí, para Google;
+   en la página se muestra sin número. No se marca la puntuación de Booking: Google no
+   permite marcar como propias las opiniones de otro sitio. */
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VacationRental',
+  '@id': `${canonical}#casa`,
+  name: site.name,
+  description,
+  url: canonical,
+  image: gallery,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'De la Tijereta 9',
+    addressLocality: 'Balneario Iporá',
+    addressRegion: 'Tacuarembó',
+    postalCode: '45000',
+    addressCountry: 'UY',
+  },
+  containedInPlace: { '@type': 'Place', name: 'Balneario Iporá, Tacuarembó, Uruguay' },
+  numberOfRooms: 3,
+  numberOfBathroomsTotal: 2,
+  occupancy: { '@type': 'QuantitativeValue', maxValue: 8, unitText: 'huéspedes' },
+  checkinTime: '15:00',
+  checkoutTime: '11:00',
+  petsAllowed: true,
+  smokingAllowed: false,
+  amenityFeature: amenityGroups
+    .flatMap((g) => g.items)
+    .map((it) => ({ '@type': 'LocationFeatureSpecification', name: it.label, value: true })),
+  sameAs: [site.booking],
+  knowsLanguage: 'es',
+};
+---
+
+<!doctype html>
+<html lang="es-UY" data-type="place" data-radius="square">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="page-type" content="place" />
+    <meta name="site-kind" content="other" />
+    <meta name="page-kind" content="place" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#1d3027" />
+    <meta name="geo.region" content="UY-TA" />
+    <meta name="geo.placename" content="Balneario Iporá, Tacuarembó" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_UY" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content={String(og.attributes.width ?? 1200)} />
+    <meta property="og:image:height" content={String(og.attributes.height ?? 900)} />
+    <meta property="og:image:alt" content={ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
+  </head>
+  <body>
+    <!--
+      Kind: place · casa de alquiler
+      Deal (a mano; el kit del skill no está instalado): paleta propia de la casa
+      (ladrillo de la fachada, verde pino, papel de cal), Newsreader + Schibsted Grotesk,
+      esquinas rectas, botón sólido + línea, hero de tres fotos de la fachada,
+      momentos: galería grande (La casa), carrusel del entorno y el 8,7 en grande (Opiniones).
+    -->
+    <a href="#contenido" class="fixed left-4 top-4 z-[100] -translate-y-24 bg-ink px-4 py-3 text-cream focus:translate-y-0">Saltar al contenido</a>
+    <slot />
+  </body>
+</html>

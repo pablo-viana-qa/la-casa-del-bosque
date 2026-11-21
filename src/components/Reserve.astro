@@ -1,0 +1,171 @@
+---
+import { site, rules, waLink } from '../data/site';
+
+const field =
+  'mt-2 block w-full min-h-12 rounded-[2px] border border-cream/25 bg-cream/[0.06] px-4 py-3 text-cream placeholder:text-cream/45 transition-colors hover:border-cream/45 focus:border-clay focus:bg-cream/10 focus:outline-none [color-scheme:dark]';
+const label = 'text-sm font-medium text-cream/85';
+---
+
+<footer id="reservar" class="on-dark bg-pine pb-8 pt-14 text-cream md:pb-12 md:pt-20" aria-labelledby="reservar-title">
+  <div class="wrap grid gap-10 lg:grid-cols-12 lg:gap-10">
+    <div class="lg:col-span-5">
+      <h2 id="reservar-title" class="h-section">Consultá tus fechas</h2>
+      <p class="mt-6 max-w-[30rem] text-cream/80">
+        Completá lo básico y se abre WhatsApp con el mensaje listo. Te responde {site.host}, la
+        anfitriona. El pago y la cancelación se acuerdan con ella al confirmar.
+      </p>
+
+      <dl class="mt-8 grid max-w-[30rem] grid-cols-2 gap-x-8 border-t border-cream/20">
+        {rules.map((r) => (
+          <div class="border-b border-cream/20 py-4">
+            <dt class="text-sm text-cream/65">{r.title}</dt>
+            <dd class="mt-1">
+              <span class="block font-serif text-[1.2rem] leading-tight">{r.value}</span>
+              <span class="mt-1 block text-sm leading-snug text-cream/65">{r.note}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <div class="lg:col-span-6 lg:col-start-7">
+      <form id="reserve-form" class="grid grid-cols-2 gap-x-4 gap-y-5 border-t border-cream/20 pt-6" novalidate>
+        <label class="col-span-2 block min-[420px]:col-span-1">
+          <span class={label}>Llegada</span>
+          <input type="date" name="llegada" required class={field} />
+        </label>
+        <label class="col-span-2 block min-[420px]:col-span-1">
+          <span class={label}>Salida</span>
+          <input type="date" name="salida" required class={field} />
+        </label>
+        <label class="block">
+          <span class={label}>Adultos</span>
+          <select name="adultos" class={field}>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option value={n} selected={n === 2}>{n}</option>)}
+          </select>
+        </label>
+        <label class="block">
+          <span class={label}>Niños</span>
+          <select name="ninos" class={field}>
+            {[0, 1, 2, 3, 4, 5, 6].map((n) => <option value={n}>{n}</option>)}
+          </select>
+        </label>
+        <label class="col-span-2 block">
+          <span class={label}>Tu nombre</span>
+          <input type="text" name="nombre" autocomplete="given-name" maxlength="60" required placeholder="¿Cómo te llamás?" class={field} />
+        </label>
+        <label class="col-span-2 block">
+          <span class={label}>Mensaje <span class="text-cream/60">(opcional)</span></span>
+          <textarea name="mensaje" rows="3" maxlength="800" placeholder="Hora estimada de llegada, preguntas…" class={`${field} resize-y`}></textarea>
+        </label>
+        <label class="col-span-2 flex min-h-11 cursor-pointer items-center gap-3">
+          <input type="checkbox" name="mascotas" class="size-5 accent-[#e3a888]" />
+          <span class="text-cream/90">Viajamos con mascota</span>
+        </label>
+
+        <p id="form-error" class="col-span-2 hidden border-l-2 border-clay bg-clay/10 px-4 py-3 text-sm text-[#f4cdb8]" role="alert"></p>
+
+        <div class="col-span-2 flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
+          <p id="nights" class="text-sm text-cream/70" aria-live="polite">Máximo 8 huéspedes.</p>
+          <button type="submit" class="btn btn-solid w-full sm:w-auto">Enviar consulta por WhatsApp</button>
+        </div>
+        <p class="col-span-2 text-sm text-cream/65">
+          ¿Preferís escribir directo? <a href={waLink()} target="_blank" rel="noopener" class="link-line text-cream">Abrir WhatsApp</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</footer>
+
+<!-- Barra de acción en el teléfono -->
+<div
+  id="action-bar"
+  class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-ink/10 bg-paper/95 px-4 py-3 backdrop-blur-md transition-transform duration-500 ease-[var(--ease-out-soft)] data-[show]:translate-y-0 md:hidden"
+>
+  <div class="flex items-center gap-3">
+    <p class="flex min-w-0 flex-1 items-center gap-2 whitespace-nowrap text-sm text-ink-2">
+      <span class="grid h-7 min-w-8 place-items-center rounded-[2px] bg-pine px-1 font-serif text-cream tabular-nums">{site.rating.score}</span>
+      {site.rating.label}
+    </p>
+    <a href="#reservar" class="btn btn-solid !min-h-12 shrink-0 !px-4">Consultar disponibilidad</a>
+  </div>
+</div>
+
+<script>
+  const bar = document.getElementById('action-bar')!;
+  const hide = new Set<string>();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => (e.isIntersecting ? hide.add(e.target.id) : hide.delete(e.target.id)));
+    bar.toggleAttribute('data-show', hide.size === 0);
+  });
+  ['top', 'reservar'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
+  });
+</script>
+
+<script define:vars={{ number: site.whatsapp, host: site.host }}>
+  const form = document.getElementById('reserve-form');
+  const err = document.getElementById('form-error');
+  const nights = document.getElementById('nights');
+  const inDate = form.elements.namedItem('llegada');
+  const outDate = form.elements.namedItem('salida');
+
+  const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  const today = new Date();
+  inDate.min = iso(today);
+  outDate.min = iso(new Date(today.getTime() + 86400000));
+
+  const fmt = (v) =>
+    new Date(v + 'T12:00:00').toLocaleDateString('es-UY', { weekday: 'short', day: 'numeric', month: 'long' });
+  const countNights = () => {
+    if (!inDate.value || !outDate.value) return 0;
+    return Math.round((new Date(outDate.value) - new Date(inDate.value)) / 86400000);
+  };
+  const update = () => {
+    if (inDate.value) {
+      const next = new Date(new Date(inDate.value + 'T12:00:00').getTime() + 86400000);
+      outDate.min = iso(next);
+      if (outDate.value && outDate.value <= inDate.value) outDate.value = iso(next);
+    }
+    const n = countNights();
+    nights.textContent = n > 0 ? `${n} ${n === 1 ? 'noche' : 'noches'} · máximo 8 huéspedes` : 'Máximo 8 huéspedes.';
+  };
+  inDate.addEventListener('change', update);
+  outDate.addEventListener('change', update);
+
+  const fail = (msg, el) => {
+    err.textContent = msg;
+    err.classList.remove('hidden');
+    el?.focus();
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    err.classList.add('hidden');
+    const d = new FormData(form);
+    const adultos = Number(d.get('adultos'));
+    const ninos = Number(d.get('ninos'));
+    const nombre = String(d.get('nombre') || '').trim();
+
+    if (!inDate.value || !outDate.value) return fail('Elegí las fechas de llegada y salida.', inDate.value ? outDate : inDate);
+    if (countNights() < 1) return fail('La salida tiene que ser al menos un día después de la llegada.', outDate);
+    if (adultos + ninos > 8) return fail(`La casa admite hasta 8 huéspedes; seleccionaste ${adultos + ninos}.`, form.elements.namedItem('ninos'));
+    if (!nombre) return fail('Contanos tu nombre para que sepamos a quién responder.', form.elements.namedItem('nombre'));
+
+    const n = countNights();
+    const lines = [
+      `Hola ${host}, soy ${nombre}. Quisiera consultar disponibilidad en La Casa del Bosque:`,
+      '',
+      `• Llegada: ${fmt(inDate.value)}`,
+      `• Salida: ${fmt(outDate.value)} (${n} ${n === 1 ? 'noche' : 'noches'})`,
+      `• Huéspedes: ${adultos} ${adultos === 1 ? 'adulto' : 'adultos'}${ninos ? ` y ${ninos} ${ninos === 1 ? 'niño' : 'niños'}` : ''}`,
+    ];
+    if (d.get('mascotas')) lines.push('• Viajamos con mascota');
+    const msg = String(d.get('mensaje') || '').trim();
+    if (msg) lines.push('', msg);
+    lines.push('', '¡Gracias!');
+
+    window.open(`https://wa.me/${number}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener');
+  });
+</script>

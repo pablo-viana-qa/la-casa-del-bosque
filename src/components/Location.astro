@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { surroundings } from '../data/site';
+
+---
+
+<!-- El entorno: tres fotos a pantalla completa que se alternan, con el texto encima -->
+<section
+  id="ipora"
+  class="on-dark relative isolate flex h-svh min-h-[36rem] items-end overflow-hidden bg-pine text-cream"
+  aria-labelledby="ipora-title"
+  data-carousel
+  data-interval="6000"
+  aria-roledescription="carrusel"
+>
+  {surroundings.map((p, n) => (
+    <div
+      class="absolute inset-0 -z-10 opacity-0 transition-opacity duration-[1200ms] ease-[var(--ease-out-soft)] data-[active]:opacity-100"
+      data-slide
+      data-active={n === 0 ? '' : undefined}
+    >
+      <Image src={p.src} alt={p.alt} widths={[768, p.src.width]} sizes="100vw" class="size-full object-cover" />
+    </div>
+  ))}
+  <div class="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgb(16_24_19/0.85),rgb(16_24_19/0.45)_45%,rgb(16_24_19/0.05)_75%)]"></div>
+
+  <div class="wrap pb-10 md:pb-16">
+    <p class="kicker text-cream/80">El entorno</p>
+    <h2 id="ipora-title" class="mt-5 max-w-[18ch] text-[clamp(2.4rem,5.4vw,4.9rem)] leading-[0.98]">
+      Un lago entre pinos y eucaliptos
+    </h2>
+    <div class="mt-8 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-[38rem]">
+        <p class="text-[1.08rem] leading-relaxed text-cream/85 md:text-lg">
+          Iporá es un balneario sobre colinas arboladas, a 7&nbsp;km del centro de Tacuarembó. En el
+          lago se puede nadar, pescar y remar; alrededor hay piscina, canchas, juegos y senderos.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" data-prev class="grid size-12 place-items-center border border-cream/40 transition hover:bg-cream/10 active:scale-95" aria-label="Foto anterior">
+          <Icon name="left" />
+        </button>
+        <div class="flex items-center gap-1 px-2" role="group" aria-label="Elegir foto">
+          {surroundings.map((_, n) => (
+            <button type="button" data-go={n} class="group grid size-11 place-items-center" aria-label={`Foto ${n + 1}`}>
+              <span class="block h-[3px] w-6 bg-cream/35 transition-all group-hover:bg-cream/70 group-data-[active]:w-10 group-data-[active]:bg-cream" aria-hidden="true"></span>
+            </button>
+          ))}
+        </div>
+        <button type="button" data-next class="grid size-12 place-items-center border border-cream/40 transition hover:bg-cream/10 active:scale-95" aria-label="Foto siguiente">
+          <Icon name="right" />
+        </button>
+        <button type="button" data-toggle class="group grid size-12 place-items-center transition hover:bg-cream/10" aria-label="Pausar fotos" aria-pressed="false">
+          <span class="hidden h-3.5 w-3 border-x-[3px] border-current group-data-[state=playing]:block" aria-hidden="true"></span>
+          <span class="hidden h-0 w-0 border-y-[7px] border-l-[11px] border-y-transparent border-l-current group-data-[state=paused]:block" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../scripts/carousel';
+</script>

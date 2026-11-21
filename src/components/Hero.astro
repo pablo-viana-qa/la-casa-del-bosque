@@ -1,0 +1,73 @@
+---
+import { Image } from 'astro:assets';
+import { site, photos } from '../data/site';
+
+/* La casa de frente, de borde a borde. El texto va en un solo bloque abajo a la izquierda,
+   sobre los arbustos y el césped, sin tapar el frontón, las chimeneas, la puerta ni la escalera. */
+---
+
+<section id="top" class="on-dark relative isolate flex h-svh min-h-[38rem] items-end overflow-hidden bg-pine text-cream" aria-labelledby="hero-title" data-enter>
+  <div class="enter-photo absolute inset-0 -z-10 overflow-hidden">
+    <Image
+      src={photos.frente}
+      alt="Frente de La Casa del Bosque: ladrillo, techo a dos aguas, dos chimeneas, escalera y jardín"
+      widths={[768, 1100, 1448]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      class="size-full object-cover object-[30%_30%] md:object-[50%_45%]"
+    />
+  </div>
+
+  <!-- Lectura del menú: una franja suave arriba -->
+  <div class="absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b from-[rgb(14_20_16/0.42)] to-transparent" aria-hidden="true"></div>
+  <!-- Lectura del texto: oscurece solo la esquina inferior izquierda; la casa queda clara -->
+  <div class="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgb(14_20_16/0.78)_0%,rgb(14_20_16/0.38)_34%,transparent_58%)] md:bg-[linear-gradient(to_top,rgb(14_20_16/0.62)_0%,rgb(14_20_16/0.2)_30%,transparent_48%),linear-gradient(to_right,rgb(14_20_16/0.42)_0%,rgb(14_20_16/0.12)_38%,transparent_55%)]" aria-hidden="true"></div>
+
+  <div class="wrap pb-12 md:pb-12">
+    <div class="max-w-[29rem] [text-shadow:0_1px_14px_rgb(14_20_16/0.35)]">
+      <a
+        href="#opiniones"
+        class="enter-text group inline-flex items-center gap-3 rounded-[2px] bg-ink/45 py-1.5 pl-1.5 pr-3.5 text-sm text-cream backdrop-blur-sm transition-colors hover:bg-ink/60 [text-shadow:none]"
+        style="--i:0"
+        aria-label={`Puntuación ${site.rating.score} de 10, ${site.rating.label}, ${site.rating.count} opiniones en Booking.com`}
+      >
+        <span class="grid h-8 min-w-9 place-items-center rounded-[2px] bg-cream px-1.5 font-serif text-[1.05rem] font-medium tabular-nums text-ink">{site.rating.score}</span>
+        <span><span class="font-semibold">{site.rating.label}</span><span class="text-cream/80"> · {site.rating.count} opiniones en Booking.com</span></span>
+      </a>
+
+      <h1 id="hero-title" class="enter-text mt-6" style="--i:1">
+        <span class="kicker block font-sans text-cream/85">Casa de alquiler en Balneario Iporá<span class="sr-only">:</span></span>{" "}
+        <span class="mt-3 block text-[clamp(2.3rem,3.9vw,3.35rem)] leading-[1.04] tracking-[-0.02em]">Un lugar para desconectar</span>
+      </h1>
+
+      <p class="enter-text mt-4 text-[1.0625rem] leading-[1.6] text-cream/90 md:text-[1.125rem]" style="--i:2">
+        Casa de ladrillo con estufa a leña y jardín para hasta 8&nbsp;personas, a pasos del lago y a
+        7&nbsp;km de Tacuarembó.
+      </p>
+
+      <div class="enter-text mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6" style="--i:3">
+        <a href="#reservar" class="btn btn-solid [text-shadow:none]">Consultar disponibilidad</a>
+        <a href="#casa" class="group link-line inline-flex min-h-11 items-center justify-center gap-2 self-center font-semibold text-cream sm:self-auto">
+          Ver la casa <span class="arr transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hay más abajo -->
+  <a href="#casa" class="scroll-cue absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1.5 text-xs font-medium tracking-[0.14em] text-cream/80 uppercase transition-colors hover:text-cream lg:flex" aria-label="Ir a La casa">
+    <span>Descubrir</span>
+    <span class="block h-8 w-px overflow-hidden bg-cream/25" aria-hidden="true"><span class="scroll-cue-line block h-3 w-px bg-cream"></span></span>
+  </a>
+</section>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-cue-line { animation: cue 2.4s cubic-bezier(0.65, 0, 0.35, 1) 1.8s infinite; }
+  }
+  @keyframes cue {
+    0% { transform: translateY(-100%); }
+    60%, 100% { transform: translateY(270%); }
+  }
+</style>

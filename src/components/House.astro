@@ -1,0 +1,103 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { houseGallery, amenityGroups } from '../data/site';
+---
+
+<section id="casa" class="py-14 md:py-20" aria-labelledby="casa-title">
+  <div class="wrap">
+    <h2 id="casa-title" class="h-section">La casa</h2>
+
+    <!-- Galería grande -->
+    <div
+      class="mt-8 md:mt-10"
+      data-carousel
+      data-interval="5000"
+      role="region"
+      aria-roledescription="carrusel"
+      aria-label="Fotos de la casa"
+    >
+      <div class="relative aspect-[4/3] overflow-hidden bg-pine md:aspect-auto md:h-[min(78svh,52rem)] md:min-h-[26rem]">
+        {houseGallery.map((p, n) => (
+          <figure
+            class="absolute inset-0 m-0 opacity-0 transition-opacity duration-700 ease-[var(--ease-out-soft)] data-[active]:opacity-100"
+            data-slide
+            data-active={n === 0 ? '' : undefined}
+            aria-roledescription="foto"
+            aria-label={`${n + 1} de ${houseGallery.length}`}
+          >
+            {p.src.width < p.src.height && (
+              <Image src={p.src} alt="" widths={[96]} sizes="96px" aria-hidden="true" class="absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl" />
+            )}
+            <Image
+              src={p.src}
+              alt={p.alt}
+              widths={[640, 1024, p.src.width]}
+              sizes="(min-width: 1344px) 1264px, 100vw"
+              loading={n === 0 ? 'eager' : 'lazy'}
+              class:list={[
+                'relative size-full',
+                p.src.width >= p.src.height ? 'object-cover' : 'object-contain',
+              ]}
+            />
+          </figure>
+        ))}
+
+        <button type="button" data-prev class="absolute left-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center bg-paper/90 text-ink shadow-sm transition hover:bg-paper active:scale-95 md:left-5 md:size-14" aria-label="Foto anterior">
+          <Icon name="left" />
+        </button>
+        <button type="button" data-next class="absolute right-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center bg-paper/90 text-ink shadow-sm transition hover:bg-paper active:scale-95 md:right-5 md:size-14" aria-label="Foto siguiente">
+          <Icon name="right" />
+        </button>
+
+        <div class="absolute bottom-3 right-3 flex items-center gap-1 bg-ink/70 text-cream md:bottom-5 md:right-5">
+          <p class="px-3 text-sm tabular-nums" data-count aria-live="polite">1 / {houseGallery.length}</p>
+          <button type="button" data-toggle class="group grid size-11 place-items-center hover:bg-cream/10" aria-label="Pausar fotos" aria-pressed="false">
+            <span class="hidden h-3.5 w-3 border-x-[3px] border-current group-data-[state=playing]:block" aria-hidden="true"></span>
+            <span class="hidden h-0 w-0 border-y-[7px] border-l-[11px] border-y-transparent border-l-current group-data-[state=paused]:block" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Miniaturas -->
+      <ul class="no-scrollbar mt-3 flex gap-2 overflow-x-auto md:grid md:grid-cols-10 md:overflow-visible">
+        {houseGallery.map((p, n) => (
+          <li class="w-20 shrink-0 md:w-auto">
+            <button
+              type="button"
+              data-go={n}
+              class="frame zoom block aspect-square w-full opacity-55 outline-offset-2 transition-opacity hover:opacity-100 data-[active]:opacity-100 data-[active]:ring-2 data-[active]:ring-brick"
+              aria-label={`Ver foto ${n + 1}: ${p.alt}`}
+            >
+              <Image src={p.src} alt="" widths={[160]} sizes="160px" />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Comodidades -->
+    <div class="mt-12 md:mt-16">
+      <h3 class="text-[clamp(1.8rem,2.8vw,2.5rem)] leading-tight">Lo que hay en la casa</h3>
+      <div class="mt-6 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+        {amenityGroups.map((g) => (
+          <div>
+            <h4 class="kicker border-b border-ink/25 pb-3 text-ink-3">{g.title}</h4>
+            <ul>
+              {g.items.map((it) => (
+                <li class="flex items-baseline justify-between gap-4 border-b border-ink/10 py-3">
+                  <span>{it.label}</span>
+                  {it.note && <span class="shrink-0 text-right text-sm text-ink-3">{it.note}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../scripts/carousel';
+</script>
