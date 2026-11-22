@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site, waLink } from '../data/site';
+
+/* Cloudflare Pages sirve este archivo con estado 404 para cualquier dirección que no existe.
+   Sin él, devolvía la portada con estado 200 y Google podía verla como páginas duplicadas. */
+---
+
+<Layout title={`Página no encontrada | ${site.name}`} description="Esta página no existe." noindex>
+  <main id="contenido" class="grid min-h-svh place-items-center bg-paper py-16">
+    <div class="wrap max-w-[34rem] text-center">
+      <p class="kicker text-ink-3">Error 404</p>
+      <h1 class="h-section mt-5">Esta página no existe</h1>
+      <p class="mt-5 text-[1.0625rem] leading-relaxed text-ink-2">
+        Puede que el enlace esté mal escrito. La casa sigue en el mismo lugar.
+      </p>
+      <div class="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
+        <a href="/" class="btn btn-solid">Ir a {site.name}</a>
+        <a href={waLink()} target="_blank" rel="noopener" class="link-line inline-flex min-h-11 items-center font-semibold">Escribir por WhatsApp</a>
+      </div>
+    </div>
+  </main>
+</Layout>

@@ -34,7 +34,7 @@ import { houseGallery, amenityGroups } from '../data/site';
               alt={p.alt}
               widths={[640, 1024, p.src.width]}
               sizes="(min-width: 1344px) 1264px, 100vw"
-              loading={n === 0 ? 'eager' : 'lazy'}
+              loading="lazy"
               class:list={[
                 'relative size-full',
                 p.src.width >= p.src.height ? 'object-cover' : 'object-contain',

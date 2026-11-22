@@ -1,14 +1,17 @@
 ---
 import '../styles/global.css';
-import { site, houseGallery, amenityGroups, pricing, nightlyPrice } from '../data/site';
+import { site, houseGallery, amenityGroups, pricing, nightlyPrice, maps } from '../data/site';
 import heroImg from '../assets/fotos/frente.jpg';
 import { getImage } from 'astro:assets';
 
 interface Props {
   title?: string;
   description?: string;
+  /** Para páginas que no deben aparecer en Google (por ejemplo la 404). */
+  noindex?: boolean;
 }
 const {
+  noindex = false,
   title = 'Casa de alquiler en Balneario Iporá, Tacuarembó | La Casa del Bosque',
   description = 'Alquiler de casa en Balneario Iporá, Tacuarembó: 4 dormitorios, 2 baños, estufa a leña y jardín para hasta 8 personas, a pasos del lago. Mascotas sin cargo.',
 } = Astro.props;
@@ -30,8 +33,8 @@ const gallery = await Promise.all(
 /* Datos estructurados (schema.org). La dirección completa va solo aquí, para Google;
    en la página se muestra sin número. No se marca la puntuación de Booking: Google no
    permite marcar como propias las opiniones de otro sitio. */
-const jsonLd = {
-  '@context': 'https://schema.org',
+const home = abs('/');
+const rental = {
   '@type': 'VacationRental',
   '@id': `${canonical}#casa`,
   identifier: 'la-casa-del-bosque-ipora',
@@ -39,6 +42,8 @@ const jsonLd = {
   description,
   url: canonical,
   image: gallery,
+  telephone: `+${site.whatsapp}`,
+  hasMap: maps.directions,
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'De la Tijereta 9',
@@ -77,6 +82,18 @@ const jsonLd = {
   sameAs: [site.booking],
   knowsLanguage: 'es',
 };
+
+/* WebSite: le dice a Google qué nombre mostrar para el sitio en los resultados. */
+const website = {
+  '@type': 'WebSite',
+  '@id': `${home}#sitio`,
+  name: site.name,
+  alternateName: 'La Casa del Bosque Iporá',
+  url: home,
+  inLanguage: 'es-UY',
+};
+
+const jsonLd = { '@context': 'https://schema.org', '@graph': [website, rental] };
 ---
 
 <!doctype html>
@@ -90,8 +107,8 @@ const jsonLd = {
     <meta name="page-type" content="place" />
     <meta name="site-kind" content="other" />
     <meta name="page-kind" content="place" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
-    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
+    {!noindex && <link rel="canonical" href={canonical} />}
     <link rel="sitemap" href="/sitemap.xml" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#1d3027" />
@@ -104,6 +121,7 @@ const jsonLd = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content={String(og.attributes.width ?? 1200)} />
     <meta property="og:image:height" content={String(og.attributes.height ?? 900)} />
     <meta property="og:image:alt" content={ogAlt} />
@@ -111,7 +129,7 @@ const jsonLd = {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogUrl} />
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
+    {!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
   </head>
   <body>
     <!--
